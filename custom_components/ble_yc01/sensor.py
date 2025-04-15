@@ -165,3 +165,34 @@ class YC01Sensor(CoordinatorEntity[DataUpdateCoordinator[YC01Device]], SensorEnt
             return self.coordinator.data.sensors[self.entity_description.key]
         except KeyError:
             return None
+            
+class BleC600Measurement:
+    def __init__(self, data: bytes):
+        self.frame = data
+        self.packet = self._decrypt(data)
+
+        self.temperature = self._decode_pos(13) / 10
+        self.ph = self._decode_pos(3) / 100
+        self.ec = self._decode_pos(5)
+        self.tds = self._decode_pos(7)
+        self.orp = self._decode_pos(20)
+        self.battery = self._decode_pos(15)
+
+    def _decrypt(self, frame):
+        array = list(frame)
+        for i in range(len(array) - 1, 0, -1):
+            tmp = array[i]
+            hibit1 = (tmp & 0x55) << 1
+            lobit1 = (tmp & 0xAA) >> 1
+
+            tmp = array[i - 1]
+            hibit = (tmp & 0x55) << 1
+            lobit = (tmp & 0xAA) >> 1
+
+            array[i] = 0xFF - (hibit1 | lobit)
+            array[i - 1] = 0xFF - (hibit | lobit1)
+        return array
+
+    def _decode_pos(self, idx):
+        return (self.packet[idx] << 8) + self.packet[idx + 1]
+
