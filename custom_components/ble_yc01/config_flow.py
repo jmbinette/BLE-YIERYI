@@ -145,6 +145,7 @@ class YC01ConfigFlow(ConfigFlow, domain=DOMAIN):
 
         current_addresses = self._async_current_ids()
         for discovery_info in async_discovered_service_info(self.hass):
+            _LOGGER.warning(f"[BLE_YC01 DEBUG] Discovered device: {discovery_info.advertisement.local_name} ({discovery_info.address}) — RSSI {discovery_info.rssi}")
             address = discovery_info.address
             if address in current_addresses or address in self._discovered_devices:
                 continue
@@ -156,8 +157,11 @@ class YC01ConfigFlow(ConfigFlow, domain=DOMAIN):
 
             if not (
                 discovery_info.advertisement.local_name.startswith("BLE-YC01")
+                or discovery_info.advertisement.local_name.startswith("BLE-C600")
             ):
+                _LOGGER.warning(f"[BLE_YC01 DEBUG] Skipping unknown device: {discovery_info.advertisement.local_name}")
                 continue
+
 
             _LOGGER.debug("Found My Device")
             _LOGGER.debug("YC01 Discovery address: %s", address)
