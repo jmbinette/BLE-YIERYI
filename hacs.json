@@ -1,5 +1,10 @@
 {
-  "name": "ble-yc01",
+  "name": "ble-yc01 (with BLE-C600 support)",
   "render_readme": true,
-  "homeassistant": "2021.3.1"
+  "homeassistant": "2021.3.1",
+  "domain": "ble_yc01",
+  "country": "worldwide",
+  "iot_class": "local_polling",
+  "keywords": ["BLE-YC01", "BLE-C600", "Yieryi", "EC", "ORP", "pH", "pool", "sensor"],
+  "persistent_directory": "custom_components/ble_yc01"
 }
