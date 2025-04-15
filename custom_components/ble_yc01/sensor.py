@@ -129,34 +129,42 @@ class YC01Sensor(CoordinatorEntity[DataUpdateCoordinator[YC01Device]], SensorEnt
     #_attr_state_class = SensorStateClass.MEASUREMENT
     _attr_has_entity_name = True
 
-    def __init__(
-        self,
-        coordinator: DataUpdateCoordinator,
-        YC01_device: YC01Device,
-        entity_description: SensorEntityDescription,
-    ) -> None:
-        """Populate the YC01 entity with relevant data."""
-        super().__init__(coordinator)
-        self.entity_description = entity_description
+def __init__(
+    self,
+    coordinator: DataUpdateCoordinator,
+    YC01_device: YC01Device,
+    entity_description: SensorEntityDescription,
+) -> None:
+    """Populate the sensor entity with relevant data."""
+    super().__init__(coordinator)
+    self.entity_description = entity_description
 
-        name = f"{YC01_device.name} {YC01_device.identifier}"
+    name = f"{YC01_device.name} {YC01_device.identifier}"
+    self._attr_unique_id = f"{name}_{entity_description.key}"
+    self._id = YC01_device.address
 
-        self._attr_unique_id = f"{name}_{entity_description.key}"
+    # Dynamically detect device type
+    if "BLE-C600" in YC01_device.name:
+        manufacturer = "Yieryi"
+        model = "BLE-C600"
+    else:
+        manufacturer = "YC01"
+        model = "YC01"
 
-        self._id = YC01_device.address
-        self._attr_device_info = DeviceInfo(
-            connections={
-                (
-                    CONNECTION_BLUETOOTH,
-                    YC01_device.address,
-                )
-            },
-            name=name,
-            manufacturer="YC01",
-            model="YC01",
-            hw_version=YC01_device.hw_version,
-            sw_version=YC01_device.sw_version,
-        )
+    self._attr_device_info = DeviceInfo(
+        connections={
+            (
+                CONNECTION_BLUETOOTH,
+                YC01_device.address,
+            )
+        },
+        name=name,
+        manufacturer=manufacturer,
+        model=model,
+        hw_version=YC01_device.hw_version,
+        sw_version=YC01_device.sw_version,
+    )
+
 
     @property
     def native_value(self) -> StateType:
